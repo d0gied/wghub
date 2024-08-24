@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "wg-api"
+version = "0.1.0"
+description = ""
+authors = ["d0gied <german.n.u@mail.ru>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-wireguard = "^0.2.2"
+fastapi = {extras = ["uvicorn"], version = "^0.112.1"}
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
