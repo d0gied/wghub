@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from re import I
 import sqlite3
 
 
@@ -42,9 +41,21 @@ class InterfaceModel:
 
     enabled: bool = True
 
+@dataclass
+class Token:
+    id: int = -1
+    token: str = ""
+
 
 class Storage:
-    def __init__(self, db_path: str):
+    _singleton = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._singleton:
+            cls._singleton = super(Storage, cls).__new__(cls)
+        return cls._singleton
+
+    def __init__(self, db_path: str = "wg.db"):
         self.db_path = db_path
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
@@ -92,6 +103,15 @@ class Storage:
             """
         )
 
+        self.cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS tokens (
+                id INTEGER PRIMARY KEY,
+                token TEXT
+            )
+            """
+        )
+
         self.conn.commit()
 
     def add_interface(self, interface: InterfaceModel) -> int:
@@ -132,7 +152,10 @@ class Storage:
             ),
         )
         self.conn.commit()
-        return self.cursor.lastrowid
+        _id = self.cursor.lastrowid
+        if not _id:
+            raise Exception("Failed to add interface")
+        return _id
     
     def add_peer(self, peer: PeerModel) -> int:
         self.cursor.execute(
@@ -164,7 +187,10 @@ class Storage:
             ),
         )
         self.conn.commit()
-        return self.cursor.lastrowid
+        _id = self.cursor.lastrowid
+        if not _id:
+            raise Exception("Failed to add peer")
+        return _id
 
     def get_interfaces(self) -> list[InterfaceModel]:
         self.cursor.execute("SELECT * FROM interfaces")
@@ -285,3 +311,24 @@ class Storage:
             ),
         )
         self.conn.commit()
+
+    def add_token(self, token: Token) -> int:
+        self.cursor.execute(
+            """
+            INSERT INTO tokens (
+                token
+            ) VALUES (?)
+            """,
+            (
+                token.token,
+            ),
+        )
+        self.conn.commit()
+        _id = self.cursor.lastrowid
+        if not _id:
+            raise Exception("Failed to add token")
+        return _id
+
+    def get_token(self, token: str) -> Token | None:
+        self.cursor.execute("SELECT * FROM tokens WHERE token = ?", (token,))
+        return Token(*row) if (row := self.cursor.fetchone()) else None

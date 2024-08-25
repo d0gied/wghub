@@ -15,4 +15,15 @@ services:
       - NET_ADMIN
       - SYS_MODULE
 
-
+  tg-bot:
+    build:
+      context: ./services/telegram-bot
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/tg-bot:/app
+    environment:
+      - TZ=Europe/Moscow
+    depends_on:
+      - wg-api
+    env_file:
+      - .env
