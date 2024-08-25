@@ -29,5 +29,5 @@ ENV PYTHONUNBUFFERED=1 \
 
 # COPY . .
 
-CMD ["python", "app.py"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 
