@@ -1,0 +1,12 @@
+
+services:
+  wg-api:
+    build:
+      context: ./services/wg-api
+      dockerfile: Dockerfile
+    ports:
+      - "51820:51820"
+      - "8080:8080"
+    volumes:
+      - ./services/wg-api:/app
+
