@@ -4,9 +4,6 @@ import sqlite3
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from .wireguard import CIDR
-
 
 @dataclass
 class PeerModel:
@@ -54,8 +51,11 @@ class Storage:
                 dns TEXT NOT NULL,
                 client_allowed_ips TEXT NOT NULL,
                 persistent_keepalive INTEGER NOT NULL
-            );
-
+            )
+            """
+        )
+        self.cursor.execute(
+        """
             CREATE TABLE IF NOT EXISTS peers (
                 id INTEGER PRIMARY KEY,
                 interface_id INTEGER NOT NULL,
@@ -65,8 +65,8 @@ class Storage:
                 allowed_ips TEXT NOT NULL,
                 address TEXT NOT NULL,
                 FOREIGN KEY (interface_id) REFERENCES interfaces (id)
-            );
-            """
+            )
+        """
         )
         self.conn.commit()
 
@@ -134,7 +134,7 @@ class Storage:
         self.cursor.execute("SELECT * FROM interfaces WHERE id = ?", (interface_id,))
         return InterfaceModel(*row) if (row := self.cursor.fetchone()) else None 
     
-    def get_peer_by_id(self, peer_id: int) -> PeerModel:
+    def get_peer_by_id(self, peer_id: int) -> PeerModel | None:
         self.cursor.execute("SELECT * FROM peers WHERE id = ?", (peer_id,))
         return PeerModel(*row) if (row := self.cursor.fetchone()) else None
     
@@ -142,11 +142,11 @@ class Storage:
         self.cursor.execute("SELECT * FROM peers WHERE interface_id = ?", (interface_id,))
         return [PeerModel(*row) for row in self.cursor.fetchall()]
 
-    def get_peer_by_name(self, name: str) -> PeerModel:
+    def get_peer_by_name(self, name: str) -> PeerModel | None:
         self.cursor.execute("SELECT * FROM peers WHERE name = ?", (name,))
         return PeerModel(*row) if (row := self.cursor.fetchone()) else None
     
-    def get_interface_by_name(self, interface_name: str) -> InterfaceModel:
+    def get_interface_by_name(self, interface_name: str) -> InterfaceModel | None:
         self.cursor.execute("SELECT * FROM interfaces WHERE interface_name = ?", (interface_name,))
         return InterfaceModel(*row) if (row := self.cursor.fetchone()) else None
     

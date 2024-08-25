@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "wg-api"
+name = "wg_api"
 version = "0.1.0"
 description = ""
 authors = ["d0gied <german.n.u@mail.ru>"]

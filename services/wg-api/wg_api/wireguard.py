@@ -6,8 +6,10 @@ from loguru import logger
 class Wireguard:
     def __init__(self) -> None:
         self.storage = Storage("wg.db")
-        self.servers: dict[str, Server]
-        self.processes: dict[str, Process]
+        self.servers: dict[str, Server] = {}
+        self.processes: dict[str, Process] = {}
+
+        self.load()
 
     def load_interface(self, interface_name: str) -> bool:
         logger.info(f"Loading interface {interface_name}")
@@ -101,7 +103,6 @@ class Wireguard:
         self.load()
         self.start_all()
     
-
     def create_interface(self, interface_name: str, local_ip: str, port: int) -> bool:
         logger.info(f"Creating interface {interface_name}")
         if self.storage.get_interface_by_name(interface_name):
@@ -113,11 +114,24 @@ class Wireguard:
                 interface_name=interface_name,
                 local_ip=local_ip,
                 port=port,
-                private_key=private,
-                public_key=public,
+                private_key=str(private),
+                public_key=str(public),
             )
         )
         logger.info(f"Created interface {interface_name}")
         self.load_interface(interface_name)
         return True
 
+    def has_interface(self, interface_name: str) -> bool:
+        return bool(self.storage.get_interface_by_name(interface_name))
+
+    def get_interfaces(self) -> list[str]:
+        return [interface.interface_name for interface in self.storage.get_interfaces()]
+    
+    def get_peers(self, interface_name: str) -> list[str]:
+        interface = self.storage.get_interface_by_name(interface_name)
+        if not interface:
+            return []
+        return [peer.name for peer in self.storage.get_peers_by_interface_id(interface.id)]
+    
+    
