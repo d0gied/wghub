@@ -11,6 +11,7 @@ python = "^3.12"
 python-wireguard = "^0.2.2"
 fastapi = {extras = ["uvicorn"], version = "^0.112.1"}
 loguru = "^0.7.2"
+uvicorn = "^0.30.6"
 
 
 [build-system]
