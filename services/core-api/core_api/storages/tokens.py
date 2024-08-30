@@ -11,9 +11,7 @@ class Tokens(
 ):
     @classmethod
     def add(cls, value: str) -> None:
-        cls.storage.execute(
-            f"INSERT INTO {cls.name} (id, value) VALUES (?, ?)", (id, value)
-        )
+        cls.storage.execute(f"INSERT INTO {cls.name} (value) VALUES (?)", (value))
         cls.storage.commit()
 
     @classmethod
