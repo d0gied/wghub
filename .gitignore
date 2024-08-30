@@ -171,3 +171,4 @@ cython_debug/
 services/wg-api/wg.db
 services/telegram-bot/storage.db
 .env
+/pihole

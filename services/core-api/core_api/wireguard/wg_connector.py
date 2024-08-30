@@ -1,8 +1,6 @@
-
-
 from subprocess import PIPE, run
 from typing import Generator
-from wg_api.config_builder import InterfaceBuilder
+from .config_builder import InterfaceBuilder
 
 
 class PeerInfo:
@@ -139,7 +137,7 @@ class WG:
         return run(
             ["wg", "pubkey"], input=private_key, stdout=PIPE, text=True
         ).stdout.strip()
-    
+
     @staticmethod
     def genpsk() -> str:
         return run(["wg", "genpsk"], stdout=PIPE, text=True).stdout.strip()

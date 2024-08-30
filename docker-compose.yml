@@ -1,29 +1,71 @@
-
 services:
-  wg-api:
+  pihole:
+    hostname: pihole
+    container_name: wghub-pihole
+    image: pihole/pihole:latest
+    ports:
+      # - "53:53/tcp"
+      # - "53:53/udp"
+      - "80:80"
+    environment:
+      - TZ=Europe/Moscow
+      - WEBPASSWORD=${PIHOLE_WEBPASSWORD}
+    volumes:
+      - './pihole/etc-pihole/:/etc/pihole/'
+      - './pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    networks:
+      vpn:
+        ipv4_address: 10.20.30.40
+
+  core-api:
+    hostname: core-api
+    container_name: wghub-core-api
     build:
-      context: ./services/wg-api
+      context: ./services/core-api
       dockerfile: Dockerfile
     ports:
       - "51820:51820"
       - "8000:8000"
     volumes:
-      - ./services/wg-api:/app
+      - ./services/core-api:/app
+      - ./pihole/etc-pihole/:/etc/pihole/
     environment:
       - TZ=Europe/Moscow
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+    networks:
+      - api
+    depends_on:
+      - pihole
 
   tg-bot:
+    hostname: tg-bot
+    container_name: wghub-tg-bot
     build:
       context: ./services/telegram-bot
       dockerfile: Dockerfile
     volumes:
-      - ./services/tg-bot:/app
+      - ./services/telegram-bot:/app
     environment:
       - TZ=Europe/Moscow
+      - WIREGUARD_API_HOST=core-api
     depends_on:
-      - wg-api
+      - core-api
     env_file:
       - .env
+    networks:
+      - api
+
+networks:
+  api:
+
+  vpn:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.20.0.0/16
+          gateway: 10.20.0.1
