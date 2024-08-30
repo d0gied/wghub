@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from .wireguard.wireguard import Wireguard, Interface, Peer
 from .pihole.connector import PiHole
 from pydantic import BaseModel, Field
-from .auth import new_token, renew_token, remove_token
+from .auth import new_token, renew_token, remove_token, check_token
 from ipaddress import IPv4Address, IPv4Network, IPv4Interface, IPv6Network
 
 
@@ -42,7 +42,9 @@ class PatchPeer(BaseModel):
 wg = Wireguard()
 ph = PiHole()
 
-api_router = APIRouter(tags=["Wireguard"], prefix="/api")
+api_router = APIRouter(
+    tags=["Wireguard"], prefix="/api", dependencies=[Depends(check_token)]
+)
 
 interfaces_router = APIRouter(
     tags=["Interfaces"],
@@ -183,7 +185,7 @@ api_router.include_router(peers_router)
 token_router = APIRouter(
     tags=["Token"],
     prefix="/token",
-    # dependencies=[Depends(check_token)]
+    # dependencies=[Depends(check_token)],
 )
 
 
@@ -209,7 +211,7 @@ api_router.include_router(interfaces_router)
 dns_router = APIRouter(
     tags=["DNS"],
     prefix="/dns",
-    # dependencies=[Depends(check_token)]
+    # dependencies=[Depends(check_token)],
 )
 
 
