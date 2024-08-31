@@ -27,7 +27,7 @@ services:
       context: ./services/core-api
       dockerfile: Dockerfile
     ports:
-      - "51820:51820"
+      - "53345:53345"
       - "8000:8000"
     volumes:
       - ./services/core-api:/app
