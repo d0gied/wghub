@@ -33,16 +33,16 @@ class CreateInterface(BaseModel):
 
 
 class UpdateInterface(BaseModel):
-    name: str | None
-    public_hostname: str | None
-    port: int | None
-    pre_up: str | None
-    post_up: str | None
-    pre_down: str | None
-    post_down: str | None
-    default_dns: str | None
-    default_allowed_ips: list[IPv4Network | IPv6Network] | None
-    default_persistent_keepalive: int | None
+    name: str | None = None
+    public_hostname: str | None = None
+    port: int | None = None
+    pre_up: str | None = None
+    post_up: str | None = None
+    pre_down: str | None = None
+    post_down: str | None = None
+    default_dns: str | None = None
+    default_allowed_ips: list[IPv4Network | IPv6Network] | None = None
+    default_persistent_keepalive: int | None = None
 
 
 class PatchPeer(BaseModel):
