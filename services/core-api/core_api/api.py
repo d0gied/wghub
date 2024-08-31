@@ -20,8 +20,8 @@ class CreatePeer(BaseModel):
 class CreateInterface(BaseModel):
     name: str = "wg0"
     local_ip: IPv4Interface = IPv4Interface("10.20.30.1/24")
-    public_host: str = "localhost"
-    listen_port: int = 51820
+    public_hostname: str = "localhost"
+    port: int = 51820
 
     default_dns: str = "1.1.1.1"
     default_allowed_ips: list[IPv4Network | IPv6Network] = [
@@ -30,6 +30,19 @@ class CreateInterface(BaseModel):
     ]
 
     default_persistent_keepalive: int = 25
+
+
+class UpdateInterface(BaseModel):
+    name: str | None
+    public_hostname: str | None
+    port: int | None
+    pre_up: str | None
+    post_up: str | None
+    pre_down: str | None
+    post_down: str | None
+    default_dns: str | None
+    default_allowed_ips: list[IPv4Network | IPv6Network] | None
+    default_persistent_keepalive: int | None
 
 
 class PatchPeer(BaseModel):
@@ -77,8 +90,8 @@ async def create_interface(model: CreateInterface) -> Interface:
     return wg.create_interface(
         name=model.name,
         local_ip=model.local_ip,
-        public_hostname=model.public_host,
-        port=model.listen_port,
+        public_hostname=model.public_hostname,
+        port=model.port,
         default_dns=model.default_dns,
         default_allowed_ips=model.default_allowed_ips,
         default_persistent_keepalive=model.default_persistent_keepalive,
@@ -98,6 +111,44 @@ async def delete_interface(
 ) -> JSONResponse:
     wg.delete_interface(interface)
     return JSONResponse({"message": "Interface deleted"})
+
+
+@interfaces_router.patch("/{interface_id}")
+async def update_interface(
+    interface: Annotated[Interface, Depends(interfaceDep)], model: UpdateInterface
+) -> Interface:
+    updated = Interface(
+        id=interface.id,
+        name=model.name if model.name else interface.name,
+        local_ip=interface.local_ip,
+        public_hostname=(
+            model.public_hostname
+            if model.public_hostname
+            else interface.public_hostname
+        ),
+        port=model.port if model.port else interface.port,
+        public_key=interface.public_key,
+        private_key=interface.private_key,
+        pre_up=model.pre_up if model.pre_up else interface.pre_up,
+        post_up=model.post_up if model.post_up else interface.post_up,
+        pre_down=model.pre_down if model.pre_down else interface.pre_down,
+        post_down=model.post_down if model.post_down else interface.post_down,
+        default_dns=model.default_dns if model.default_dns else interface.default_dns,
+        default_allowed_ips=(
+            model.default_allowed_ips
+            if model.default_allowed_ips
+            else interface.default_allowed_ips
+        ),
+        default_persistent_keepalive=(
+            model.default_persistent_keepalive
+            if model.default_persistent_keepalive
+            else interface.default_persistent_keepalive
+        ),
+        enabled=interface.enabled,
+    )
+
+    wg.update_interface(updated)
+    return updated
 
 
 @interfaces_router.post("/{interface_id}/up")
