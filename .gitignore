@@ -168,7 +168,7 @@ cython_debug/
 .vscode/
 
 # Storages
-services/wg-api/wg.db
+services/core-api/wg.db
 services/telegram-bot/storage.db
 .env
 /pihole
