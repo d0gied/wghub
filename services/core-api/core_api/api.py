@@ -179,7 +179,7 @@ async def read_peers(
     return result
 
 
-@interfaces_router.put("/{interface_name}/peers", response_model=Peer)
+@interfaces_router.put("/{interface_id}/peers", response_model=Peer)
 async def create_peer(
     interface: Annotated[Interface, Depends(interfaceDep)], peer: CreatePeer
 ):
